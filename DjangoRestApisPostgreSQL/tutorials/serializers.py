@@ -1,10 +1,10 @@
-from rest_framework import serializers, viewsets
+from rest_framework import serializers
 from tutorials.models import Tutorial
  
  
-class TutorialSerializer(serializers.Serializer):
-    title = serializers.CharField(max_length=100)
-    description = serializers.CharField(max_length=70, allow_blank=False, default='')
+class TutorialSerializer(serializers.ModelSerializer):
+    title = serializers.CharField(max_length=70)
+    description = serializers.CharField(max_length=200, allow_blank=False)
     published = serializers.BooleanField(default=False)
 
     class Meta:
@@ -12,5 +12,5 @@ class TutorialSerializer(serializers.Serializer):
         fields = ('id',
                   'title',
                   'description',
-                  'published')     
+                  'published')
 
