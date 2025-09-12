@@ -6,10 +6,11 @@ from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 
 from rest_framework.routers import DefaultRouter
-from .views import TutorialViewSet
+from .views import TutorialViewSet, ClassesViewSet
 
 router = DefaultRouter()
 router.register(r'tutorials', TutorialViewSet)
+router.register(r'classes', ClassesViewSet)
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -30,6 +31,10 @@ urlpatterns = [
     path('api/tutorials/', views.tutorial_list),
     path('api/tutorials/<int:pk>/', views.tutorial_detail),
     path('api/tutorials/published/', views.tutorial_list_published),
+    
+    path('api/classes/', views.classes_list),
+    path('api/classes/<int:pk>/', views.classes_detail),
+    path('api/classes/grade/<int:grade>', views.classes_list_grade),
     
     # default CRUD methods (list, create, retrieve, update, partial_update, destroy)
     #path('api/', include(router.urls)), 
