@@ -43,8 +43,19 @@ INSTALLED_APPS = [
     'tutorials.apps.TutorialsConfig',
     # CORS
     'corsheaders',    
-    'drf_yasg',    
+    'drf_yasg',
+    # jwt auth
+    'rest_framework_simplejwt',    
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',  # protect by default
+    ),
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

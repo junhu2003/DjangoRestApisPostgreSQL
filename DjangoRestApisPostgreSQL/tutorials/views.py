@@ -7,12 +7,12 @@ from tutorials.models import Tutorial, Classes
 from tutorials.serializers import TutorialSerializer, ClassesSerializer
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework.decorators import api_view
-from rest_framework import viewsets
+from rest_framework import viewsets, permissions
 
 class TutorialViewSet(viewsets.ModelViewSet):
     queryset = Tutorial.objects.all()
-    serializer_class = TutorialSerializer   
-
+    serializer_class = TutorialSerializer
+    permission_classes = [permissions.IsAuthenticated]  # 🔒 protect all endpoints
 
 @swagger_auto_schema(methods=['post'], request_body=TutorialSerializer)
 @api_view(['GET', 'POST', 'DELETE'])
@@ -88,7 +88,7 @@ def tutorial_list_published(request):
 class ClassesViewSet(viewsets.ModelViewSet):
     queryset = Classes.objects.all()
     serializer_class = ClassesSerializer   
-
+    permission_classes = [permissions.IsAuthenticated]  # 🔒 protect all endpoints
 
 @swagger_auto_schema(methods=['post'], request_body=ClassesSerializer)
 @api_view(['GET', 'POST', 'DELETE'])
