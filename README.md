@@ -5,6 +5,16 @@ pip install djangorestframework
 Setup new Django project
 django-admin startproject DjangoRestApisPostgreSQL
 
+DjangoRestApisPostgreSQL
+│
+├── DjangoRestApisPostgreSQL
+│   ├── __init__.py
+│   ├── settings.py
+│   ├── urls.py
+│   ├── wsgi.py
+│
+└── manage.py
+
 open settings.py and add Django REST framework to the INSTALLED_APPS array
 INSTALLED_APPS = [
     ...
@@ -31,6 +41,25 @@ DATABASES = {
 Setup new Django app for Rest CRUD Api
 cd DjangoRestApisPostgreSQL
 python manage.py startapp tutorials
+
+DjangoRestApisPostgreSQL
+│
+├── DjangoRestApisPostgreSQL
+│   ├── __init__.py
+│   ├── settings.py
+│   ├── urls.py
+│   ├── wsgi.py
+│
+├── tutorials
+│   ├── migrations
+│   │   └── __init__.py
+│   ├── admin.py
+│   ├── apps.py
+│   ├── models.py
+│   ├── tests.py
+│   ├── views.py
+│
+└── manage.py
 
 open tutorials/apps.py, modify TutorialsConfig class (subclass of django.apps.AppConfig)
 add this new created app to DjangoRestApisPostgreSQL INSTALLED_APPS array in settings.py:
