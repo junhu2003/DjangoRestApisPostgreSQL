@@ -61,6 +61,25 @@ DjangoRestApisPostgreSQL
 │
 └── manage.py
 
+DjangoRestApisPostgreSQL
+│
+├── DjangoRestApisPostgreSQL
+│ ├── init.py
+│ ├── settings.py
+│ ├── urls.py
+│ ├── wsgi.py
+│
+├── tutorials
+│ ├── migrations
+│ │ └── init.py
+│ ├── admin.py
+│ ├── apps.py
+│ ├── models.py
+│ ├── tests.py
+│ ├── views.py
+│
+└── manage.py
+
 open tutorials/apps.py, modify TutorialsConfig class (subclass of django.apps.AppConfig)
 add this new created app to DjangoRestApisPostgreSQL INSTALLED_APPS array in settings.py:
 INSTALLED_APPS = [
