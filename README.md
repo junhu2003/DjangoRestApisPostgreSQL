@@ -1,32 +1,71 @@
-Django CRUD with PostgreSQL overview
+# Django CRUD with PostgreSQL
 
-Install Django REST framework
-pip install djangorestframework
-Setup new Django project
+A step-by-step guide to creating a Django REST API with PostgreSQL backend, JWT authentication, and CORS support.
+
+## Table of Contents
+
+* [Setup Project](#setup-project)
+* [Install Dependencies](#install-dependencies)
+* [Configure Django REST Framework](#configure-django-rest-framework)
+* [Connect to PostgreSQL](#connect-to-postgresql)
+* [Create App and Model](#create-app-and-model)
+* [Migrate Database](#migrate-database)
+* [Serializers](#serializers)
+* [Routes and Views](#routes-and-views)
+* [Test CRUD API](#test-crud-api)
+* [Authentication](#authentication)
+* [JWT Authentication](#jwt-authentication)
+* [Testing JWT with Postman](#testing-jwt-with-postman)
+
+---
+
+## Setup Project
+
+```bash
 django-admin startproject DjangoRestApisPostgreSQL
+cd DjangoRestApisPostgreSQL
+```
 
-DjangoRestApisPostgreSQL
-│
-├── DjangoRestApisPostgreSQL
+Project structure:
+
+```
+DjangoRestApisPostgreSQL/
+├── DjangoRestApisPostgreSQL/
 │   ├── __init__.py
 │   ├── settings.py
 │   ├── urls.py
-│   ├── wsgi.py
-│
+│   └── wsgi.py
 └── manage.py
+```
 
-open settings.py and add Django REST framework to the INSTALLED_APPS array
+---
+
+## Install Dependencies
+
+```bash
+pip install djangorestframework psycopg2 django-cors-headers djangorestframework-simplejwt drf-yasg
+```
+
+---
+
+## Configure Django REST Framework
+
+Add to `INSTALLED_APPS` in `settings.py`:
+
+```python
 INSTALLED_APPS = [
     ...
-    # Django REST framework 
     'rest_framework',
 ]
+```
 
-Connect Django project to PostgreSQL
-Python PostgreSQL adapter to PostgreSQL database
-pip install psycopg2
-setup PostgreSQL Database engine
-open settings.py and change declaration of DATABASES:
+---
+
+## Connect to PostgreSQL
+
+Update `DATABASES` in `settings.py`:
+
+```python
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -37,148 +76,137 @@ DATABASES = {
         'PORT': '5432',
     }
 }
+```
 
-Setup new Django app for Rest CRUD Api
-cd DjangoRestApisPostgreSQL
+---
+
+## Create App and Model
+
+```bash
 python manage.py startapp tutorials
+```
 
-DjangoRestApisPostgreSQL
-│
-├── DjangoRestApisPostgreSQL
-│   ├── __init__.py
-│   ├── settings.py
-│   ├── urls.py
-│   ├── wsgi.py
-│
-├── tutorials
-│   ├── migrations
-│   │   └── __init__.py
-│   ├── admin.py
-│   ├── apps.py
-│   ├── models.py
-│   ├── tests.py
-│   ├── views.py
-│
-└── manage.py
+Update `INSTALLED_APPS`:
 
-open tutorials/apps.py, modify TutorialsConfig class (subclass of django.apps.AppConfig)
-add this new created app to DjangoRestApisPostgreSQL INSTALLED_APPS array in settings.py:
+```python
 INSTALLED_APPS = [
     ...
-    # Tutorials application 
     'tutorials.apps.TutorialsConfig',
 ]
+```
 
-Configure CORS
-install the django-cors-headers library:
-pip install django-cors-headers
-In settings.py, add configuration for CORS:
-INSTALLED_APPS = [
-    ...
-    # CORS
-    'corsheaders',
-]
-also need to add a middleware class to listen in on responses:
-MIDDLEWARE = [
-    ...
-    # CORS
-    'corsheaders.middleware.CorsMiddleware',
-    'django.middleware.common.CommonMiddleware',
-]
-Note: CorsMiddleware should be placed as high as possible, especially before any middleware that can generate responses such as CommonMiddleware.
-Next, set CORS_ORIGIN_ALLOW_ALL and add the host to CORS_ORIGIN_WHITELIST:
+### CORS Setup
+
+```python
+INSTALLED_APPS += ['corsheaders']
+MIDDLEWARE = ['corsheaders.middleware.CorsMiddleware', 'django.middleware.common.CommonMiddleware', ...]
 CORS_ORIGIN_ALLOW_ALL = False
-CORS_ORIGIN_WHITELIST = (
-    'http://localhost:8081',
-)
-* CORS_ORIGIN_ALLOW_ALL: If True, all origins will be accepted (not use the whitelist below). Defaults to False.
-* CORS_ORIGIN_WHITELIST: List of origins that are authorized to make cross-site HTTP requests. Defaults to [].
+CORS_ORIGIN_WHITELIST = ('http://localhost:8081',)
+```
 
-Define the Django Model
-Open tutorials/models.py, add Tutorial class
+### Define Model (`tutorials/models.py`)
+
+```python
 from django.db import models
+
 class Tutorial(models.Model):
-    title = models.CharField(max_length=70, blank=False, default='')
-    description = models.CharField(max_length=200,blank=False, default='')
+    title = models.CharField(max_length=70, default='', blank=False)
+    description = models.CharField(max_length=200, default='', blank=False)
     published = models.BooleanField(default=False)
-Migrate Data Model to PostgreSQL database
+```
+
+---
+
+## Migrate Database
+
+```bash
 python manage.py makemigrations tutorials
-To apply the generated migration, run the following Python script:
 python manage.py migrate tutorials
-Create Serializer class for Data Model
-tutorials/serializers.py
-from rest_framework import serializers 
+```
+
+---
+
+## Serializers (`tutorials/serializers.py`)
+
+```python
+from rest_framework import serializers
 from tutorials.models import Tutorial
- 
- 
+
 class TutorialSerializer(serializers.ModelSerializer):
- 
     class Meta:
         model = Tutorial
-        fields = ('id',
-                  'title',
-                  'description',
-                  'published')
+        fields = ('id', 'title', 'description', 'published')
+```
 
-Define Routes to Views functions
-These are our routes:
-* /api/tutorials: GET, POST, DELETE
-* /api/tutorials/:id: GET, PUT, DELETE
-* /api/tutorials/published: GET
-Create a urls.py inside tutorials 
-from django.urls import path 
-from tutorials import views  
-urlpatterns = [ 
-    path('api/tutorials', views.tutorial_list),
-    path('api/tutorials/<int:pk>', views.tutorial_detail),
-    path('api/tutorials/published', views.tutorial_list_published),
+---
+
+## Routes and Views
+
+### URLs (`tutorials/urls.py`)
+
+```python
+from django.urls import path
+from tutorials import views
+
+urlpatterns = [
+    path('api/tutorials', views.tutorial_list),
+    path('api/tutorials/<int:pk>', views.tutorial_detail),
+    path('api/tutorials/published', views.tutorial_list_published),
 ]
-Open DjangoRestApisPostgreSQL/urls.py
+```
+
+### Project URLs (`DjangoRestApisPostgreSQL/urls.py`)
+
+```python
 from django.contrib import admin
 from django.urls import path, include
-from tutorials import urls
+
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('', include(urls)),
+    path('admin/', admin.site.urls),
+    path('', include('tutorials.urls')),
 ]
-Write API Views
-Open tutorials/views.py and write following code
+```
 
+---
 
-Test the CRUD with APIs
+## Test CRUD API
+
+```bash
 python manage.py runserver 8080
+```
 
-Admin user: admin
-Password: Hj923056!
-User: roger
-Password: hj923056
+**Admin Users**
 
-Authentication in Django REST Framework (DRF)
-*  SessionAuthentication -> uses Django sessions (good for web + Swagger UI)
-*  BasicAuthentication -> username/password on each request (not secure for production)
-*  TokenAuthentication -> static token stored in DB
-*  JWT (JSON Web Tokens) -> recommended for modern APIs
+* Admin: `admin` / `Hj923056!`
+* User: `roger` / `hj923056`
 
-JWT (JSON Web Tokens)
-pip install djangorestframework-simplejwt
-Update settings.py
-INSTALLED_APPS = [
-    ...
-    'rest_framework',
-    'rest_framework_simplejwt',
-    'drf_yasg',   # if you’re using Swagger via drf-yasg
-]
+---
+
+## Authentication
+
+* **SessionAuthentication:** Django sessions
+* **BasicAuthentication:** username/password per request
+* **TokenAuthentication:** static DB token
+* **JWT:** recommended for modern APIs
+
+---
+
+## JWT Authentication
+
+Add to `settings.py`:
+
+```python
+INSTALLED_APPS += ['rest_framework_simplejwt', 'drf_yasg']
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.IsAuthenticated',  # protect by default
+        'rest_framework.permissions.IsAuthenticated',
     ),
 }
 
-Change swagger end point authentication to jwt
 SWAGGER_SETTINGS = {
     'SECURITY_DEFINITIONS': {
         'Bearer': {
@@ -188,68 +216,52 @@ SWAGGER_SETTINGS = {
         }
     },
 }
+```
 
-Update urls.py to add the JWT endpoints + Swagger:
-from rest_framework_simplejwt.views import (
-    TokenObtainPairView,
-    TokenRefreshView,
-)
+Add JWT URLs:
 
-schema_view = get_schema_view(
-    openapi.Info(
-        title="Tutorials API",
-        default_version='v1',
-        description="Tutorial API with JWT",
-    ),
-    public=True,
-    permission_classes=(permissions.AllowAny,),
-)
-urlpatterns = [
-    ……………………………………
-    # JWT Auth endpoints
+```python
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+
+urlpatterns += [
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    ……………………………………
 ]
-views.py
+```
+
+Views with JWT protection:
+
+```python
 class TutorialViewSet(viewsets.ModelViewSet):
     queryset = Tutorial.objects.all()
     serializer_class = TutorialSerializer
-  permission_classes = [permissions.IsAuthenticated]  # protect all endpoints
-  
-How to test JWT authentication in postman:
-Create a user via Django admin
-*  Open Postman -> New request
-*  Set method POST
-*  URL: http://127.0.0.1:8000/api/token/
-*  Go to Body -> raw -> JSON:
+    permission_classes = [permissions.IsAuthenticated]
+```
+
+---
+
+## Testing JWT with Postman
+
+1. Create a user via Django admin.
+2. POST to `http://127.0.0.1:8000/api/token/` with:
+
+```json
 {
   "username": "john",
   "password": "yourpassword"
 }
-get a response like:
-{
-  "refresh": "eyJ0eXAiOiJKV1QiLCJh...",
-  "access": "eyJ0eXAiOiJKV1QiLCJh..."
-}
-Use token to access protected endpoints
-1. Create a new request in Postman
-2. Method: GET / POST / PUT / DELETE
-3. URL: e.g., http://127.0.0.1:8000/api/tutorials/
-Set JWT token in headers
-* Go to Headers
-* Key: Authorization
-* Value: Bearer <access_token> # Capitalize "Bearer", must have space between Bearer <access_token>
-Refresh token (optional)
-If your access token expires:
-* Method: POST
-* URL: http://127.0.0.1:8000/api/token/refresh/
-* Body:
-{
-  "refresh": "<your_refresh_token>"
-}
-* Response:
-{
-  "access": "new_access_token_here"
-}
-* Use the new access token for subsequent requests.
+```
+
+3. Use returned `access` token for Authorization header:
+
+```
+Key: Authorization
+Value: Bearer <access_token>
+```
+
+4. Refresh token if expired:
+
+```bash
+POST http://127.0.0.1:8000/api/token/refresh/
+Body: { "refresh": "<your_refresh_token>" }
+```
