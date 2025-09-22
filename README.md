@@ -43,7 +43,7 @@ DjangoRestApisPostgreSQL/
 ## Install Dependencies
 
 ```bash
-pip install djangorestframework psycopg2 django-cors-headers djangorestframework-simplejwt drf-yasg
+pip install django djangorestframework psycopg2 django-cors-headers djangorestframework-simplejwt drf-yasg
 ```
 
 ---
