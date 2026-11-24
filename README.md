@@ -4,18 +4,18 @@ A step-by-step guide to creating a Django REST API with PostgreSQL backend, JWT 
 
 ## Table of Contents
 
-* [Setup Project](#setup-project)
-* [Install Dependencies](#install-dependencies)
-* [Configure Django REST Framework](#configure-django-rest-framework)
-* [Connect to PostgreSQL](#connect-to-postgresql)
-* [Create App and Model](#create-app-and-model)
-* [Migrate Database](#migrate-database)
-* [Serializers](#serializers)
-* [Routes and Views](#routes-and-views)
-* [Test CRUD API](#test-crud-api)
-* [Authentication](#authentication)
-* [JWT Authentication](#jwt-authentication)
-* [Testing JWT with Postman](#testing-jwt-with-postman)
+- [Setup Project](#setup-project)
+- [Install Dependencies](#install-dependencies)
+- [Configure Django REST Framework](#configure-django-rest-framework)
+- [Connect to PostgreSQL](#connect-to-postgresql)
+- [Create App and Model](#create-app-and-model)
+- [Migrate Database](#migrate-database)
+- [Serializers](#serializers)
+- [Routes and Views](#routes-and-views)
+- [Test CRUD API](#test-crud-api)
+- [Authentication](#authentication)
+- [JWT Authentication](#jwt-authentication)
+- [Testing JWT with Postman](#testing-jwt-with-postman)
 
 ---
 
@@ -167,6 +167,39 @@ urlpatterns = [
 ]
 ```
 
+### JWT Auth endpoints
+
+- `POST /api/token/` — Obtain an access token and refresh token using a valid Django username and password.
+- `POST /api/token/refresh/` — Refresh an expired access token using a valid refresh token.
+
+Example request to obtain a token:
+
+```http
+POST /api/token/
+Content-Type: application/json
+
+{
+  "username": "your_username",
+  "password": "your_password"
+}
+```
+
+Include the returned access token in protected API requests:
+
+```http
+Authorization: Bearer <access_token>
+```
+
+### Swagger docs
+
+- `/swagger/` — Interactive Swagger UI for browsing and testing the API.
+- `/redoc/` — Alternative ReDoc API documentation view.
+
+The API documentation is available at:
+
+- `http://127.0.0.1:8080/swagger/`
+- `http://127.0.0.1:8080/redoc/`
+
 ---
 
 ## Test CRUD API
@@ -177,17 +210,44 @@ python manage.py runserver 8080
 
 **Admin Users**
 
-* Admin: `admin` / `Hj923056!`
-* User: `roger` / `hj923056`
+- Admin: `admin` / `Hj923056!`
+- User: `roger` / `hj923056`
+
+### Register admin users
+
+There is no public URL to create a user. The project has no registration endpoint implemented.
+
+The available options are:
+
+- Django admin: `http://127.0.0.1:8000/admin/` — create users after signing in with an existing admin account.
+- Django shell: run `python manage.py createsuperuser` to create an admin user from the terminal.
+
+For example:
+
+```bash
+python manage.py createsuperuser
+```
+
+Enter values at each prompt:
+
+```text
+Username: myadmin
+Email address: myadmin@example.com
+Password: ********
+Password (again): ********
+Superuser created successfully.
+```
+
+Use a strong password and keep the credentials secure. After the command succeeds, sign in at `http://127.0.0.1:8000/admin/` with the new username and password.
 
 ---
 
 ## Authentication
 
-* **SessionAuthentication:** Django sessions
-* **BasicAuthentication:** username/password per request
-* **TokenAuthentication:** static DB token
-* **JWT:** recommended for modern APIs
+- **SessionAuthentication:** Django sessions
+- **BasicAuthentication:** username/password per request
+- **TokenAuthentication:** static DB token
+- **JWT:** recommended for modern APIs
 
 ---
 
